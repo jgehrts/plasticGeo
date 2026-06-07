@@ -1,52 +1,23 @@
-#' Get the top n plastic types & counts for each type in the neighborhood specified in Nigeria.
+#' Clean the Nigeria plastic pollution dataset
 #'
-#' @param neighborhood A character string of a neighborhood in Nigeria in the data.
-#' @param n A numeric whole value less than or equal to 10
+#' @return A tibble with neighborhood, plastic type, and count cleaned.
 #'
-#' @import stringr
-#' @import dplyr
-#' @import tidyr
-#'
-#' @return A tibble of top plastic types with counts.
+#' @importFrom dplyr recode mutate
+#' @importFrom tidyr pivot_longer
+#' @importFrom stringr str_extract str_squish str_remove str_to_title str_replace_all
 #'
 #' @export
-top_plastic_items <- function(neighborhood, n){
-  neighborhoods <- load_nigeria_data() |>
-    mutate(
-      Neighborhood = stringr::str_extract(Location, "^[^,]+"),
-      Neighborhood = stringr::str_squish(Neighborhood)
-    ) |>
-    distinct(Neighborhood) |>
-    pull(Neighborhood)
-
-  validate_neighborhood(neighborhood)
-
-  if (!is.numeric(n) || length(n) != 1 || n %% 1 != 0 || n < 1 || n > 10) {
-    stop("`n` must be a whole number between 1 and 10.")
-  }
-
+clean_nigeria <- function() {
   load_nigeria_data() |>
     mutate(
       Neighborhood = stringr::str_extract(Location, "^[^,]+"),
       Neighborhood = stringr::str_squish(Neighborhood)
     ) |>
-    filter(Neighborhood == neighborhood) |>
-    select(
-      starts_with("SUM_"),
-      Fishing_Net
-    ) |>
     pivot_longer(
-      cols = everything(),
+      cols = c(starts_with("SUM_"), Fishing_Net),
       names_to = "plastic_type",
       values_to = "Count"
     ) |>
-    group_by(plastic_type) |>
-    summarise(
-      Count = sum(Count, na.rm = TRUE),
-      .groups = "drop"
-    ) |>
-    arrange(desc(Count)) |>
-    slice_head(n = n) |>
     mutate(
       plastic_type = stringr::str_remove(plastic_type, "SUM_"),
       plastic_type = dplyr::recode(
@@ -69,18 +40,6 @@ top_plastic_items <- function(neighborhood, n){
           stringr::str_replace_all(plastic_type, "_", " ")
         )
       )
-    ) |>
-    select(
-      `Plastic Type` = plastic_type,
-      Count
     )
 }
-
-
-
-
-
-
-
-
 

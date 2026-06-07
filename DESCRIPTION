@@ -16,6 +16,10 @@ Config/testthat/edition: 3
 Imports: 
     dplyr,
     ggplot2,
+    gt,
     hexbin,
+    readr,
+    scales,
     stringr,
-    tidyr
+    tidyr,
+    tidyselect

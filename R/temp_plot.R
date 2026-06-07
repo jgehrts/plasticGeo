@@ -2,7 +2,6 @@
 #'
 #' Creates a hexbin plot comparing mean annual temperature and total plastic collected.
 #'
-#' @param data A data frame with AnnualMeanTemp, grand_total, and Country.
 #’
 #' @importFrom dplyr filter slice_max
 #' @importFrom ggplot2 ggplot aes geom_hex scale_fill_gradient
@@ -12,11 +11,9 @@
 #’
 #' @export
 #'
-library(ggplot2)
-library(dplyr)
 
-plot_temp_plastic_hex <- function(data) {
-  clean_data <- data |>
+plot_temp_plastic_hex <- function() {
+  clean_data <- load_plastic_data() |>
     filter(!is.na(AnnualMeanTemp), !is.na(grand_total), grand_total > 0)
 
   top_point <- clean_data |>
@@ -50,6 +47,7 @@ plot_temp_plastic_hex <- function(data) {
       fill = "Number of Countries"
     )
 }
+
 
 
 
